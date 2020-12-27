@@ -26,7 +26,7 @@ def load_target_dir():
         dst = input("(input) > ").strip()
 
     if not os.path.isdir(dst):
-        print("[!] Please inesrt your sdcard (mounting point: %s)" % dst)
+        print("[!] Please insert your sdcard (mounting point: %s)" % dst)
         print("    waiting", end="", flush=True)
 
         while not os.path.isdir(dst):
@@ -100,11 +100,11 @@ def copy_to(src, name, dst):
     hash_src = md5sum(src)
 
     if hash_dst != hash_src:
-        bak = "%s~" % dst
-        if hash_dst != "":
-            if os.path.exists(bak):
-                os.unlink(bak)
-            shutil.move(dst, bak)
+        # bak = "%s~" % dst
+        # if hash_dst != "":
+        #     if os.path.exists(bak):
+        #         os.unlink(bak)
+        #     shutil.move(dst, bak)
         print("[!] %s is updated" % dst)
         shutil.copy2(src, dst)
     else:
@@ -130,5 +130,3 @@ if __name__ == '__main__':
            (config, "config.txt")]:
         copy_to(*f, sdcard)
 
-    print("[!] unmounting %s" % sdcard)
-    os.system("sudo umount '%s'" % sdcard)

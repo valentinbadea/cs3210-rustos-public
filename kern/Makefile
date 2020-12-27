@@ -18,6 +18,9 @@ build:
 	@echo "+ Building build/$(KERN).bin [objcopy]"
 	@$(OBJCPY) $(TARGET) build/$(KERN).bin
 
+	@echo "+ Building $@ [objcopy $<]"
+	@$(OBJCPY) $(TARGET) build/$(KERN).img
+
 check:
 	@cargo xcheck
 
@@ -40,7 +43,7 @@ clean:
 
 install: build
 	@echo "+ Installing build/$(KERN).elf [install-kernel.py]"
-	@$(ROOT)/bin/install-kernel.py build/$(KERN).elf
+	sudo $(ROOT)/bin/install-kernel.py build/$(KERN).elf
 
 test:
 	cargo test --target=$(shell $(ROOT)/bin/get-host-target.sh)
