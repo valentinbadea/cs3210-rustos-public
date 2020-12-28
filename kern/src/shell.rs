@@ -88,7 +88,7 @@ pub fn shell(prefix: &str) -> ! {
                     if buf.pop() == None {
                         console.write_byte(BELL);
                     } else {
-                        console.write(&[BACKSPACE, b' ',BACKSPACE]);
+                        console.write(&[BACKSPACE, b' ',BACKSPACE]).unwrap();
                     }
                 } else if byte < 32 || byte == 255 {
                     // Discard non-printable characters and send an alert.

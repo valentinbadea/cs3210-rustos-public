@@ -2,7 +2,7 @@ use core::marker::PhantomData;
 
 use crate::common::{IO_BASE, states};
 use volatile::prelude::*;
-use volatile::{ReadVolatile, Reserved, Volatile, WriteVolatile};
+use volatile::{ReadVolatile, Reserved, Volatile};
 
 /// An alternative GPIO function.
 #[repr(u8)]
@@ -46,7 +46,6 @@ struct Registers {
     PUDCLK: [Volatile<u32>; 2],
 }
 
-/// Possible states for a GPIO pin.
 states! {
     Uninitialized, Input, Output, Alt
 }

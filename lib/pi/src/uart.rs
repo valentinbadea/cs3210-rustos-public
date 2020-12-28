@@ -2,7 +2,6 @@ use core::fmt;
 use core::time::Duration;
 
 use shim::io;
-use shim::const_assert_size;
 
 use volatile::prelude::*;
 use volatile::{Volatile, ReadVolatile, Reserved};
@@ -54,7 +53,7 @@ struct Registers {
 /// The Raspberry Pi's "mini UART".
 pub struct MiniUart {
     registers: &'static mut Registers,
-    timeout: Option<u32>,
+    timeout: Option<Duration>,
 }
 
 impl MiniUart {
@@ -88,8 +87,8 @@ impl MiniUart {
     }
 
     /// Set the read timeout to `milliseconds` milliseconds.
-    pub fn set_read_timeout(&mut self, milliseconds: u32) {
-        self.timeout = Some(milliseconds);
+    pub fn set_read_timeout(&mut self, t:Duration) {
+        self.timeout = Some(t);
     }
 
     /// Write the byte `byte`. This method blocks until there is space available
@@ -119,7 +118,7 @@ impl MiniUart {
 
         while !self.has_byte() {
             if let Some(m) = self.timeout {
-                if timer::current_time() >= start_time + (m as u64 * 1000) {
+                if timer::current_time() >= start_time.checked_add(m).unwrap() {
                     return Err(());
                 }
             }
