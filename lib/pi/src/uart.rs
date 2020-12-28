@@ -86,7 +86,7 @@ impl MiniUart {
         // FIXME: Implement remaining mini UART initialization.
     }
 
-    /// Set the read timeout to `milliseconds` milliseconds.
+    /// Set the read timeout to t.
     pub fn set_read_timeout(&mut self, t:Duration) {
         self.timeout = Some(t);
     }
