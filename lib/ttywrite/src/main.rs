@@ -49,10 +49,25 @@ struct Opt {
 
 fn main() {
     use std::fs::File;
-    use std::io::{self, BufReader, BufRead};
+    use std::io::{self, BufReader};
 
     let opt = Opt::from_args();
     let mut serial = serial::open(&opt.tty_path).expect("path points to invalid TTY");
+    let mut settings = serial.read_settings().expect("Failed to load settings");
+    settings
+        .set_baud_rate(opt.baud_rate)
+        .expect("Invalid baud rate");
+    settings.set_char_size(opt.char_width);
+    settings.set_flow_control(opt.flow_control);
+    settings.set_stop_bits(opt.stop_bits);
+    serial
+        .set_timeout(Duration::from_secs(opt.timeout))
+        .expect("Invalid timeout");
+    serial
+        .write_settings(&settings)
+        .expect("Failed to apply serial settings");
+
+  
     if opt.input.is_some() {
         let f = File::open(opt.input.unwrap());
         let mut reader = BufReader::new(f.unwrap());
@@ -61,8 +76,8 @@ fn main() {
             println!("wrote {:?} bytes to {:?}", len, opt.tty_path);
         } else {
             match Xmodem::transmit(reader, serial) {
-                Ok(_) => println!("wrote bytes with Xmodem to {:?}", opt.tty_path),
-                Err(error) => panic!("Problem opening the file: {:?}", error),
+                Ok(size) => println!("Succesfully transfered {} bytes with Xmodem to {:?}", size,  opt.tty_path),
+                Err(error) => panic!("{:?}", error),
             }
         }
     } else {
@@ -75,8 +90,8 @@ fn main() {
             println!("wrote {:?} bytes to {:?}", len, opt.tty_path);
         } else {
             match Xmodem::transmit(buffer, serial) {
-                Ok(_) => println!("wrote bytes with Xmodem to {:?}", opt.tty_path),
-                Err(error) => panic!("Problem opening the file: {:?}", error),
+                Ok(size) => println!("Succesfully transfered {} bytes with Xmodem to {:?}", size, opt.tty_path),
+                Err(error) => panic!("{:?}", error),
             }
         }
     }
