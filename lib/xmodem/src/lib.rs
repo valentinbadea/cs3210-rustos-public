@@ -205,13 +205,13 @@ impl<T: io::Read + io::Write> Xmodem<T> {
             Ok(byte)
         } else if CAN != actual_byte {
             self.write_byte(CAN)?;
-            return Err(io::Error::new(io::ErrorKind::InvalidData, msg));
+            Err(io::Error::new(io::ErrorKind::InvalidData, msg))
         } else {
             self.write_byte(CAN)?;
-            return Err(io::Error::new(
+            Err(io::Error::new(
                 io::ErrorKind::ConnectionAborted,
                 "received CAN",
-            ));
+            ))
         }
     }
 
@@ -230,14 +230,14 @@ impl<T: io::Read + io::Write> Xmodem<T> {
         let actual_byte = self.read_byte(false)?;
 
         if byte == actual_byte {
-            return Ok(byte);
+            Ok(byte)
         } else if CAN == actual_byte {
-            return Err(io::Error::new(
+            Err(io::Error::new(
                 io::ErrorKind::ConnectionAborted,
                 "received CAN",
-            ));
+            ))
         } else {
-            return Err(io::Error::new(io::ErrorKind::InvalidData, expected));
+            Err(io::Error::new(io::ErrorKind::InvalidData, expected))
         }
     }
 
@@ -303,7 +303,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
         let checksum = self.read_byte(false)?;
         if (checksum & 0x3u8) != (sum & 0x3u8) {
             self.write_byte(NAK)?;
-            return Err(io::Error::new(io::ErrorKind::Interrupted, "Interrupted"));
+            Err(io::Error::new(io::ErrorKind::Interrupted, "Interrupted"))
         } else {
             for (output, internal) in buf.iter_mut().zip(internal_buf.iter()) {
                 *output = *internal
@@ -343,7 +343,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
     ///
     /// An error of kind `Interrupted` is returned if a packet checksum fails.
     pub fn write_packet(&mut self, buf: &[u8]) -> io::Result<usize> {
-        if buf.len() < 128 && buf.len() != 0 {
+        if buf.len() < 128 && !buf.is_empty(){
             return Err(io::Error::new(
                 io::ErrorKind::UnexpectedEof,
                 "Unexpected end of packet ",
@@ -353,7 +353,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
             self.expect_byte(NAK, "NAK for EOT not received")?;
         }
         /* End transmision  */
-        if 0 == buf.len() {
+        if buf.is_empty() {
             self.write_byte(EOT)?;
             self.expect_byte(NAK, "NAK for EOT not received")?;
             self.write_byte(EOT)?;
@@ -366,23 +366,23 @@ impl<T: io::Read + io::Write> Xmodem<T> {
         self.write_byte(255 - self.packet)?;
         self.packet += 1;
         let mut checksum: u8 = 0;
-        for index in 0..buf.len() {
-            self.write_byte(buf[index])?;
-            checksum = checksum.wrapping_add(buf[index]);
+        for byte in buf {
+            self.write_byte(*byte)?;
+            checksum = checksum.wrapping_add(*byte);
         }
         self.write_byte(checksum)?;
 
         /*Wait ACK or NAK */
         let response = self.read_byte(true)?;
         if response == NAK {
-            return Err(io::Error::new(io::ErrorKind::Interrupted, "Interrupted"));
+            Err(io::Error::new(io::ErrorKind::Interrupted, "Interrupted"))
         } else if response == ACK {
             Ok(buf.len())
         } else {
-            return Err(io::Error::new(
+            Err(io::Error::new(
                 io::ErrorKind::InvalidData,
                 "ACK or NAK not received",
-            ));
+            ))
         }
     }
 
