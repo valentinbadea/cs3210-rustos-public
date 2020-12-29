@@ -32,7 +32,7 @@ impl Timer {
     /// `CLO` and `CHI` together can represent the number of elapsed microseconds.
     pub fn read(&self) -> Duration {
         Duration::from_micros(
-            ((self.registers.CHI.read() as u64) << 32) + (self.registers.CLO.read() as u64),
+            (u64::from(self.registers.CHI.read())<< 32) + (u64::from(self.registers.CLO.read()))
         )
     }
 }

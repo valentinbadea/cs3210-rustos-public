@@ -1,6 +1,7 @@
 use core::fmt;
 use core::time::Duration;
 
+use shim::const_assert_size;
 use shim::io;
 
 use volatile::prelude::*;
@@ -11,10 +12,10 @@ use crate::gpio::{Function, Gpio};
 use crate::timer;
 
 /// The base address for the `MU` registers.
-const MU_REG_BASE: usize = IO_BASE + 0x215040;
+const MU_REG_BASE: usize = IO_BASE + 0x0021_5040;
 
 /// The `AUXENB` register from page 9 of the BCM2837 documentation.
-const AUX_ENABLES: *mut Volatile<u8> = (IO_BASE + 0x215004) as *mut Volatile<u8>;
+const AUX_ENABLES: *mut Volatile<u8> = (IO_BASE + 0x0021_5004) as *mut Volatile<u8>;
 
 /// Enum representing bit fields of the `AUX_MU_LSR_REG` register.
 #[repr(u8)]
@@ -50,7 +51,7 @@ struct Registers {
     // FIXME: Declare the "MU" registers from page 8.
 }
 
-const_assert_size!(Registers, 0x7E21506C - 0x7E215040);
+const_assert_size!(Registers, 0x7E21_506C - 0x7E21_5040);
 
 /// The Raspberry Pi's "mini UART".
 pub struct MiniUart {
@@ -89,7 +90,7 @@ impl MiniUart {
     }
 
     /// Set the read timeout to t.
-    pub fn set_read_timeout(&mut self, t:Duration) {
+    pub fn set_read_timeout(&mut self, t: Duration) {
         self.timeout = Some(t);
     }
 
@@ -136,7 +137,7 @@ impl MiniUart {
 }
 
 impl fmt::Write for MiniUart {
-    fn write_str(&mut self, s: &str) -> fmt::Result{
+    fn write_str(&mut self, s: &str) -> fmt::Result {
         for byte in s.bytes() {
             if byte == b'\n' {
                 self.write_byte(b'\r');
@@ -166,19 +167,18 @@ mod uart_io {
                     }
                     Ok(read)
                 }
-                Err(()) => Err(io::Error::new(io::ErrorKind::TimedOut,
-                                   "Timeout"))
+                Err(()) => Err(io::Error::new(io::ErrorKind::TimedOut, "Timeout")),
             }
         }
     }
-    impl io::Write for MiniUart{
-        fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error>{
+    impl io::Write for MiniUart {
+        fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
             for &byte in buf {
                 self.write_byte(byte);
             }
             Ok(buf.len())
         }
-        fn flush(&mut self) -> Result<(), io::Error>{
+        fn flush(&mut self) -> Result<(), io::Error> {
             Ok(())
         }
     }
