@@ -7,20 +7,25 @@ pub struct Atag {
 }
 
 impl Atag {
-    pub const NONE: u32 = 0x00000000;
-    pub const CORE: u32 = 0x54410001;
-    pub const MEM: u32 = 0x54410002;
-    pub const VIDEOTEXT: u32 = 0x54410003;
-    pub const RAMDISK: u32 = 0x54410004;
-    pub const INITRD2: u32 = 0x54420005;
-    pub const SERIAL: u32 = 0x54410006;
-    pub const REVISION: u32 = 0x54410007;
-    pub const VIDEOLFB: u32 = 0x54410008;
-    pub const CMDLINE: u32 = 0x54410009;
+    pub const NONE: u32 = 0x0000_0000;
+    pub const CORE: u32 = 0x5441_0001;
+    pub const MEM: u32 = 0x5441_0002;
+    pub const VIDEOTEXT: u32 = 0x5441_0003;
+    pub const RAMDISK: u32 = 0x5441_0004;
+    pub const INITRD2: u32 = 0x5442_0005;
+    pub const SERIAL: u32 = 0x5441_0006;
+    pub const REVISION: u32 = 0x5441_0007;
+    pub const VIDEOLFB: u32 = 0x5441_0008;
+    pub const CMDLINE: u32 = 0x5441_0009;
 
     /// FIXME: Returns the ATAG following `self`, if there is one.
     pub fn next(&self) -> Option<&Atag> {
-        unimplemented!()
+        if self.dwords > 1u32 {
+            let ptr = self as *const Atag as *const u32;
+            unsafe { (ptr.add(self.dwords as usize) as *const Atag).as_ref() }
+        } else {
+            None
+        }
     }
 }
 

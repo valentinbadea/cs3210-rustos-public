@@ -1,8 +1,8 @@
 use crate::common::IO_BASE;
 
+use core::time::Duration;
 use volatile::prelude::*;
 use volatile::{ReadVolatile, Volatile};
-use core::time::Duration;
 /// The base address for the ARM system timer registers.
 const TIMER_REG_BASE: usize = IO_BASE + 0x3000;
 
@@ -31,7 +31,9 @@ impl Timer {
     /// Reads the system timer's counter and returns Duration.
     /// `CLO` and `CHI` together can represent the number of elapsed microseconds.
     pub fn read(&self) -> Duration {
-        Duration::from_micros(((self.registers.CHI.read() as u64) << 32) + (self.registers.CLO.read() as u64))
+        Duration::from_micros(
+            ((self.registers.CHI.read() as u64) << 32) + (self.registers.CLO.read() as u64),
+        )
     }
 }
 
@@ -44,7 +46,7 @@ pub fn current_time() -> Duration {
 /// Spins until `t` have passed.
 pub fn spin_sleep(t: Duration) {
     let timer = Timer::new();
-    timer.registers.COMPARE[0].write(timer.read().checked_add(t).unwrap().as_millis() as u32);
+    timer.registers.COMPARE[0].write(timer.read().checked_add(t).unwrap().as_micros() as u32);
     while 0u32 == (timer.registers.CS.read() & 1u32) {}
     timer.registers.CS.write(0u32);
 }
