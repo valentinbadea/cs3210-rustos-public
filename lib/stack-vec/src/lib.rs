@@ -2,9 +2,11 @@
 
 #[cfg(test)]
 mod tests;
-use core::ops::Deref;
-use core::ops::DerefMut;
+
+use core::iter::IntoIterator;
+use core::ops::{Deref, DerefMut};
 use core::slice::Iter;
+
 /// A contiguous array type backed by a slice.
 ///
 /// `StackVec`'s functionality is similar to that of `std::Vec`. You can `push`

@@ -17,7 +17,7 @@ struct Registers {
 
 /// The Raspberry Pi ARM system timer.
 pub struct Timer {
-    registers: &'static mut Registers
+    registers: &'static mut Registers,
 }
 
 impl Timer {
@@ -48,4 +48,3 @@ pub fn spin_sleep(t: Duration) {
     while 0u32 == (timer.registers.CS.read() & 1u32) {}
     timer.registers.CS.write(0u32);
 }
-

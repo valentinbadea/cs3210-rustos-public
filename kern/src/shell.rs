@@ -1,8 +1,19 @@
+use shim::io;
+use shim::path::{Path, PathBuf};
+
 use stack_vec::StackVec;
+
+use pi::atags::Atags;
+
+use fat32::traits::FileSystem;
+use fat32::traits::{Dir, Entry};
 
 use crate::console::{kprint, kprintln, CONSOLE};
 use core::str;
 use shim::io::{Write as IOWrite};
+use crate::ALLOCATOR;
+use crate::FILESYSTEM;
+
 /// Error type for `Command` parse failures.
 #[derive(Debug)]
 enum Error {
@@ -43,6 +54,7 @@ impl<'a> Command<'a> {
 }
 
 /// Starts a shell using `prefix` as the prefix for each line. This function
+<<<<<<< HEAD
 /// returns if the `exit` command is called.
 const BELL: u8 = 7;
 const BACKSPACE: u8 = 8;
@@ -50,6 +62,9 @@ const DELETE: u8 = 127;
 const CMD_LEN: usize = 512;
 const ARG_LEN: usize = 64;
 
+=======
+/// never returns.
+>>>>>>> skeleton/lab3
 pub fn shell(prefix: &str) -> ! {
 
     kprintln!("Welcome to RustOS by ValentinB");
