@@ -52,10 +52,7 @@ impl From<&'static raw::Atag> for Atag {
                 (raw::Atag::CMDLINE, &raw::Kind { ref cmd }) => {
                     let data = &(cmd.cmd) as *const u8;
                     let mut count = 0;
-                    loop {
-                        if (*data.add(count)) == b'\0' {
-                            break;
-                        }
+                    while *data.add(count) != b'\0' {
                         count += 1;
                     }
                     let command = slice::from_raw_parts(data, count);
